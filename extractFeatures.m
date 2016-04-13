@@ -7,3 +7,8 @@ function b = extractFeatures(w)
 %   This implementation does PCA on the waveforms of each channel
 %   separately and uses the first three principal components. Thus, we get
 %   a total of 12 features.
+b = zeros(size(w,2),12);s
+for i = 0:3
+    [coeff, score] = pca(w(:,:,i+1)');
+    b(:,(i*3+1):(i*3+3)) = score(:,1:3);
+end

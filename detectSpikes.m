@@ -37,7 +37,7 @@ end
 %compare the four channels and assume that almost near spikes are the same
 %spike
 spikes = sort([minima{1}; minima{2}; minima{3}; minima{4}]);
-near_spikes = [0; diff(spikes)<3]; %the minima of spikes are allowed to differ by 2 timesteps to be counted as one spike
+near_spikes = [0; diff(spikes)<6]; %the minima of spikes are allowed to differ by 2 timesteps to be counted as one spike
 s = spikes(near_spikes==0);
 t=(s-1)/Fs;
 

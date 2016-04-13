@@ -15,16 +15,10 @@ w = zeros(window_size,length(s), length(x(1,:)));
 rel_pos_min = 0.3;
 low_limit = round(window_size*rel_pos_min);
 up_limit = window_size-low_limit;
+s = s((s>low_limit) & (s<(length(x)-up_limit))); %remove spikes that exceed the time window
 
 for i = 1: length(x(1,:))
   for j = 1: length(s)
       w(:,j,i) =(x((s(j)+1- low_limit):(s(j)+up_limit),i));
   end
 end
-
-
-
-
-
-
-
