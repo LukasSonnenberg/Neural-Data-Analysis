@@ -16,7 +16,7 @@ y2 = filter(ones(1,WindowSize)/WindowSize,1,x);
 
 %% Highpass
 %with a barrier frequency tau [s]
-tau = 1e-3;
+tau = 1e-4;
 a =1/(Fs*tau);
 y3 = filter([1-a a-1], [1 a-1], y2);
 

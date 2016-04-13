@@ -6,7 +6,7 @@ function [s, t] = detectSpikes(x, Fs)
 %   sample is 0 ms.
 
 %get threshold
-N = 10;
+N = 4;
 sigma = median(abs(x)/0.6745);
 thresh = N*sigma;
 
@@ -38,7 +38,6 @@ end
 %spike
 spikes = sort([minima{1}; minima{2}; minima{3}; minima{4}]);
 near_spikes = [0; diff(spikes)<3]; %the minima of spikes are allowed to differ by 2 timesteps to be counted as one spike
-size(near_spikes)
 s = spikes(near_spikes==0);
 t=(s-1)/Fs;
 
