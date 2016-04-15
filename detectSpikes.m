@@ -6,7 +6,7 @@ function [s, t] = detectSpikes(x, Fs)
 %   sample is 0 ms.
 
 %get threshold
-N = 4;
+N = 4.0;
 sigma = median(abs(x)/0.6745);
 thresh = N*sigma;
 
@@ -36,8 +36,20 @@ end
 
 %compare the four channels and assume that almost near spikes are the same
 %spike
+same_spike = 4;
+other_spike = 20;
 spikes = sort([minima{1}; minima{2}; minima{3}; minima{4}]);
-near_spikes = [0; diff(spikes)<3]; %the minima of spikes are allowed to differ by 2 timesteps to be counted as one spike
-s = spikes(near_spikes==0);
-t=(s-1)/Fs;
+near_spikes = [0; diff(spikes)<same_spike]; %the minima of spikes are allowed to differ by 2 timesteps to be counted as one spike
+all_spikes = spikes(near_spikes==0);
 
+%throw away spikes, that are too close to each other (two different spikes
+%at same time)
+delete = zeros(1,length(all_spikes));
+for i = 1:length(all_spikes)-1
+    difference = all_spikes(i+1)-all_spikes(i);
+    if (difference>same_spike) & (difference<other_spike)
+        delete(i:i+1) = 1;
+    end
+end
+s = all_spikes(delete == 0);
+t=(s-1)/Fs;
