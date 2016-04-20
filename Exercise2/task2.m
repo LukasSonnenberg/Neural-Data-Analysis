@@ -65,52 +65,59 @@ plot(mu(:,1),mu(:,2),'kx')
 hold off
 
 %% EM
-for i = 1:10 % length should be optimized and not like this
+for i = 1:20 % length should be optimized and not like this
+    new_mu = mu*0;
+    new_Sigma = Sigma*0;
+    new_priors = priors*0;
+    
     %E-Step
     gamma = zeros(size(b,1),K);
+    gamma2 = zeros(size(b,1),K);
     for l = 1:size(b,1)
-        for j = 1:K
+        for j = 1:K     
             gamma(l,j) = priors(j)*mvnpdf(b(l,:),mu(j,:), Sigma(:,:,j));
         end   
-        gamma(l,:) = gamma(l,:)/sum(gamma(l,:));     
+        %gamma(l,:) = gamma(l,:)/sum(gamma(l,:));
+        gamma2(l,:) = gamma(l,:) == max(gamma(l,:));
     end
+    
+    gamma = bsxfun(@rdivide, gamma, sum(gamma,2));    
     
     %M-Step
     N = sum(gamma,1);
     for j = 1:K
-        mu(j,:) = mu(j,:)*0;
-        for l = 1:size(b,1)
-            mu(j,:) = mu(j,:) + 1/N(j)*gamma(l,j)*b(j);
-        end
-        mu(j,:) = 1/N(j)*sum(bsxfun(@times,gamma(:,j),b));
+        new_mu(j,:) = 1/N(j)*sum(bsxfun(@times,gamma(:,j),b));
         
-        b_mu = bsxfun(@minus,b,mu(j,:));
-        Sigma(:,:,j) = Sigma(:,:,j)*0;
+        %b_mu = bsxfun(@minus,b,new_mu(j,:));
+        %new_Sigma(:,:,j) = 1/N(j)*sum(bsxfun(@times,gamma(:,j),b_mu'*b_mu));
         for l = 1:size(b,1)
-            Sigma(:,:,j) = Sigma(:,:,j) + 1/N(j)*b_mu'*b_mu*gamma(l,j);
+            b_mu = b(l,:) - new_mu(j,:);
+            new_Sigma(:,:,j) = new_Sigma(:,:,j) + 1/N(j)*(b_mu'*b_mu)*gamma(l,j);
         end
+       % new_Sigma =  1/N(j)*new_Sigma;
         
-        priors(j) = N(j)/size(b,1);
+        new_priors(j) = N(j)/size(b,1);
     end
     
-    figure(i+1)
+    figure(i+1)    
     hold on
-    plot(g1(:,1),g1(:,2),'r.')
-    plot(g2(:,1),g2(:,2),'b.')
-    plot(g3(:,1),g3(:,2),'g.')
-    plot(mu(:,1),mu(:,2),'kx')
+    colors = ['r';'b';'g'];
+    for j=1:K
+        plot(b(gamma2(:,j)==1,1),b(gamma2(:,j)==1,2),'.','color',colors(j))
+    end
+    plot(mu(:,1),mu(:,2),'ko')
+    plot(new_mu(:,1),new_mu(:,2),'kx')
     hold off
     
     loglike = 0;
     for l = 1:size(b,1)
         for j = 1:K
-            loglike = loglike + log(sum(priors.*mvnpdf(b(l,:),mu(j,:),Sigma(:,:,j))));
+            loglike = loglike + log(sum(new_priors.*mvnpdf(b(l,:),mu(j,:),Sigma(:,:,j))));
         end
     end 
-    loglike
-%     if loglike < -1e4
-%         break
-%     end
+    mu = new_mu;
+    Sigma = new_Sigma;
+    priors = new_priors;
 end
 hold on
 
