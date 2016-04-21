@@ -99,7 +99,6 @@ for t = 1:trials
         if i>3
             if diff(loglike(t,i-1:i)) < 1.0
                 loglike(t,i:end) = loglike(t,i);
-                [t,i]
                 break
             end
         end
