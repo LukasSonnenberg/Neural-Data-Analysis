@@ -14,32 +14,41 @@ function [mu, Sigma, priors, df, assignments] = sortSpikes(b)
 
 
 D = size(b,2);
-K = 3; % erfordert noch Arbeit
+
+K = 1; % erfordert noch Arbeit
 
 trials = 10;
 runs = 30;
+max_iter = 20;
 
-mu = zeros(K,D);
-Sigma = zeros(D,D,K);
-loglike = zeros(trials,runs);
 
-for i=1:D
-    Sigma(i,i,:) = 10;
-end
-assignments = zeros(1,K);
 df = inf;   % you don't need to use this variable unless you want to 
             % implement a mixture of t-distributions
 %neurons = zeros(size(b,1),K);     
-priors = ones(1,K)/K;
+
 min_loglike = 0;
 
 %% EM
 break_loop = 0;
 for t = 1:trials
-    for i = 1:D
-        mu(:,i) = min(b(:,i)) + rand(K,1)*(max(b(:,i))-min(b(:,i)));
-    end
-    for i = 1:runs % length should be optimized and not like this
+    
+    i = 1;
+    repeat_loop = 1;
+    while(repeat_loop ==1)%for i = 1:runs % length should be optimized and not like this
+      
+      priors = ones(1,K)/K;
+      assignments = zeros(1,K);
+      mu = zeros(K,D);
+      Sigma = zeros(D,D,K);
+      loglike = zeros(trials,runs);
+      for f = 1:D
+        mu(:,f) = min(b(:,f)) + rand(K,1)*(max(b(:,f))-min(b(:,f)));
+      end
+
+      for h=1:D
+          Sigma(h,h,:) = 10;
+      end
+
         new_mu = mu*0;
         new_Sigma = Sigma*0;
         new_priors = priors*0;
@@ -89,14 +98,30 @@ for t = 1:trials
         mu = new_mu;
         Sigma = new_Sigma;
         priors = new_priors;
-    end
+        
+        %evaluation of loglikelihood 
+        P(i) = (K*(1+ D + D^2));
+        max_loglike = loglike(t,i);
+        BIC(i) = -2*exp(loglike(t,i)) +  (K*(1+ D + D^2))*log(size(b,1));
+        
+        if(i<max_iter) % should be changed to a criterion statement
+          i = i+1;
+          K = K + 1;
+        else
+          repeat_loop =0;
+        end
+        
+
+    end %while
+    
+    
     if loglike(t,end) < min_loglike
         min_mu = mu;
         min_Sigma = Sigma;
         min_priors = priors;
         min_gamma = gamma2;
     end
-end
+end %trials
 
 mu = min_mu;
 Sigma = min_Sigma;
