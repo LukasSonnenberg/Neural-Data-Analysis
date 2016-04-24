@@ -4,10 +4,8 @@ close all
 hold off
 set(0,'DefaultFigureWindowStyle','docked')
 
-load('NDA_task1_results.mat')
-
 %% Generate Toy Data
-N = 100;
+N = 1000;
 
 mu1 = [0;0];
 mu2 = [5;1];
@@ -21,6 +19,7 @@ pi1 = 0.3;
 pi2 = 0.5;
 pi3 = 0.2;
 
+s = rng;
 g1 = mvnrnd(mu1,sigma1,N*pi1);
 g2 = mvnrnd(mu2,sigma2,N*pi2);
 g3 = mvnrnd(mu3,sigma3,N*pi3);
@@ -34,8 +33,23 @@ hold off
 
 b = [g1; g2; g3];
 
+%load('NDA_task1_results.mat')
+%b = b(1:100,:);
+
 %% 
-[mu, Sigma, priors, df, assignments] = sortSpikes(b);
+% tic
+% [mu, Sigma, priors, df, assignments, loglike] = sortSpikes(b);
+% toc
+
+%%
 
 
 
+%%
+
+figure()
+hold on
+plot(b(assignments == 1,1),b(assignments == 1,2),'r.')
+plot(b(assignments == 2,1),b(assignments == 2,2),'b.')
+plot(b(assignments == 3,1),b(assignments == 3,2),'g.')
+hold off

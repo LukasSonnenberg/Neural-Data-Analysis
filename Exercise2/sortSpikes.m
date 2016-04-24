@@ -1,4 +1,4 @@
-function [mu, Sigma, priors, df, assignments] = sortSpikes(b)
+function [mu, Sigma, priors, df, assignments, loglike] = sortSpikes(b)
 % Do spike sorting by fitting a Gaussian or Student's t mixture model.
 %   [mu, Sigma, priors, df, assignments] = sortSpikes(b) fits a mixture
 %   model using the features in b, which is a matrix of size #spikes x
@@ -16,30 +16,31 @@ function [mu, Sigma, priors, df, assignments] = sortSpikes(b)
 D = size(b,2);
 K = 3; % erfordert noch Arbeit
 
-trials = 10;
-runs = 30;
+trials = 15; %how often the EM-algorithm runs
+runs = 40; %steps of each EM-algorithm
 
 mu = zeros(K,D);
 Sigma = zeros(D,D,K);
 loglike = zeros(trials,runs);
 
 for i=1:D
-    Sigma(i,i,:) = 10;
+    Sigma(i,i,:) = D^2;
 end
-assignments = zeros(1,K);
 df = inf;   % you don't need to use this variable unless you want to 
             % implement a mixture of t-distributions
-%neurons = zeros(size(b,1),K);     
 priors = ones(1,K)/K;
-min_loglike = 0;
+min_loglike = inf;
+max_loglike = -inf;
 
 %% EM
+
 break_loop = 0;
+rng(1)
 for t = 1:trials
     for i = 1:D
-        mu(:,i) = min(b(:,i)) + rand(K,1)*(max(b(:,i))-min(b(:,i)));
+        mu(:,i) = min(b(:,i)) + rand(K,1)*(max(b(:,i))-min(b(:,i))); %first random mu locations
     end
-    for i = 1:runs % length should be optimized and not like this
+    for i = 1:runs
         new_mu = mu*0;
         new_Sigma = Sigma*0;
         new_priors = priors*0;
@@ -53,52 +54,72 @@ for t = 1:trials
             end   
             gamma2(l,:) = gamma(l,:) == max(gamma(l,:));
         end
-
         gamma = bsxfun(@rdivide, gamma, sum(gamma,2));    
-
+        
         %M-Step
         N = sum(gamma,1);
         for j = 1:K
             new_mu(j,:) = 1/N(j)*sum(bsxfun(@times,gamma(:,j),b));
             for l = 1:size(b,1)
-                b_mu = b(l,:) - new_mu(j,:);
-                new_Sigma(:,:,j) = new_Sigma(:,:,j) + 1/N(j)*(b_mu'*b_mu)*gamma(l,j);
+                new_Sigma(:,:,j) = new_Sigma(:,:,j) + 1/N(j)*gamma(l,j)*((b(l,:)-new_mu(j,:))'*(b(l,:)-new_mu(j,:)));
             end
             new_priors(j) = N(j)/size(b,1);
         end
         
+        %check if Sigma is valid, break otherwise
         for j = 1:K
-            if sum(diag(Sigma(:,:,j)) < 0.1) > 0
+            if sum(diag(Sigma(:,:,j))<0.1) > 0
+                loglike(t,i:end) = nan;
                 break_loop = 1;
             end
-        end 
+            if sum(sum(Sigma(:,:,j)^-1)) == inf
+                loglike(t,i:end) = nan;
+                break_loop = 1;
+            end
+        end
+        
         if break_loop == 1
             break
         end
         
+        %get loglikelihood, break if it is -inf and fill vector with NaNs
         for l = 1:size(b,1)
+            likelihood = 0;
             for j = 1:K
-                loglike(t,i) = loglike(t,i) + log(sum(new_priors.*mvnpdf(b(l,:),mu(j,:),Sigma(:,:,j))));
+                likelihood = likelihood + new_priors(j)*mvnpdf(b(l,:),mu(j,:),Sigma(:,:,j));
             end
+            loglike(t,i) = loglike(t,i) + log(likelihood);
         end
+
         if loglike(t,i) == -inf
             loglike(t,i:end) = nan;
             break
         end
         
+        if i>3
+            if diff(loglike(t,i-1:i)) < 1.0
+                loglike(t,i:end) = loglike(t,i);
+                break
+            end
+        end
+        
+        %update Parameters
         mu = new_mu;
         Sigma = new_Sigma;
         priors = new_priors;
     end
-    if loglike(t,end) < min_loglike
-        min_mu = mu;
-        min_Sigma = Sigma;
-        min_priors = priors;
-        min_gamma = gamma2;
+    %get parameters of highest likelihood
+    if loglike(t,end) > max_loglike
+        max_loglike = loglike(t,end);
+        max_mu = mu;
+        max_Sigma = Sigma;
+        max_priors = priors;
+        max_gamma = gamma2;
     end
 end
 
-mu = min_mu;
-Sigma = min_Sigma;
-priors = min_priors;
-assignments = sum(bsxfun(@times,min_gamma,1:K),2);
+mu = max_mu;
+Sigma = max_Sigma;
+priors = max_priors;
+assignments = sum(bsxfun(@times,max_gamma,1:K),2);
+disp(['Maximum Likelihood is ', num2str(max_loglike)])
