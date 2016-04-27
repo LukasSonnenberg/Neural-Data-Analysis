@@ -7,6 +7,6 @@ load NDA_task1_results
 load NDA_task2_results
 
 % diagnostic plots
-%plotWaveforms(w, assignments)
+plotWaveforms(w, assignments)
 plotCCG(t, assignments)
 %plotSeparation(b, mu, Sigma, priors, assignments)

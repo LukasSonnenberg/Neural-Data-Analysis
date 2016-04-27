@@ -8,9 +8,10 @@ function plotCCG(t, assignments, varargin)
 maxlag = 20;
 binsize = 0.5;
 C = max(assignments);
-colors = [0 0 0; 0 0 1; 0 1 0; 1 0 0; 0 1 1; 1 0 1; 1 1 0; .5 .5 .5; 0 0 .5];
 
 [ccg, bins] = correlogram(t, assignments, binsize, maxlag);
+
+colors = [0 0 0; 0 0 1; 0 1 0; 1 0 0; 0 1 1; 1 0 1; 1 1 0; .5 .5 .5; 0 0 .5];
 
 figure()
 for c1 = 1:C
