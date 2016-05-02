@@ -1,0 +1,20 @@
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: t
+%%% End: 
+
+\documentclass{article}
+\usepackage{graphicx}
+\begin{document}
+
+Figure 1
+\includegraphics[width=\pagewidth]{Figure1.pdf}
+
+Figure 2
+\includegraphics[width=\pagewidth]{Figure2.pdf}
+Figure 3
+\includegraphics[width=\pagewidth]{Figure3.pdf}
+
+Considering all the visualizations I would say that black and dark blue are the same unit, but the rest are single units. 
+\end{document}
