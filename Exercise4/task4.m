@@ -2,11 +2,11 @@ clear all
 close all
 set(0,'DefaultFigureWindowStyle','docked')
 
-load('C:\Users\Lukas\Documents\Universitaet\Neural Data Analysis\Exercise4\TrainingData.mat')
+load('TrainingData.mat')
 
 %% Parameters for fitting
-E_Ca = 0;
-tau = .4:.05:0.85;
+Ca_0 = 0:0.1:1;
+A
 stren = 0.02:0.01:0.13;
 q = 0.2;%0.1:0.02:0.3;
 fac = 1:6;
