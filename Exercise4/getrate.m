@@ -7,15 +7,15 @@ function [rate] = getrate(trace, h, n, x)
 
 % there are probably some sort of windowing issues...we should deal with
 % this
-window = length(h);
+window = length(trace);
 wfun = hann(window);
 
 
-H = fft(h); %can I do this analytically?
-X = fft(wfun.*x);
+H = real(fft(h)); %can I do this analytically?
+X = real(fft(x));
 
 G = (conj(H).*X)./((abs(H).^2).*X + n);
-g = ifft(G); % this is gonna be problematic I'm sure...
+g = real(ifft(G)); % this is gonna be problematic I'm sure...
 
-rate = conv(trace,g);
-rate = rate(1:length(rate)/2);
+rate = conv(g,trace);
+rate = rate(1:length(trace));
