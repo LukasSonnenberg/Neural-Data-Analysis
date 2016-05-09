@@ -4,27 +4,20 @@ set(0,'DefaultFigureWindowStyle','docked')
 
 load('TrainingData.mat')
 %% some quick tests before fitting
-cutoff = 1;
+cutoff = 2;
 x = double(data(1).GalvoTraces);
 
-% low pass
-[a,b] = butter(6,cutoff*2/data(1).fps,'low');
-xb = filtfilt(a,b,x);
+
 
 %should we de-mean?
-A = 0.01:0.1:5;
-b = 0.1:1:100;
-n = 1;
-out = zeros(length(A),length(b));
-for i = 1:length(A)
+A = mean(data(1).GalvoTraces);
+b = 0.1:0.1:5;
+out = zeros(1,10);
+for i = 1:10
     disp(i);
-    for j = 1:length(b)
-        t = [1:length(xb)]/data(1).fps;
-        h = A(i)*exp(-t./b(j));
-        test = getrate(xb, h, n, data(1).SpikeTraces');
-        tmp = corrcoef(test,data(1).SpikeTraces');
-        out(i,j) = tmp(1,2);
-    end
+    test = estimateRateFromCa(data(i).GalvoTraces);
+    out(i) = corr(test,data(i).SpikeTraces);
+    trace{i} = test;
 end
 
 %% Parameters for fitting
