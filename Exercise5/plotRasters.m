@@ -12,5 +12,26 @@ function plotRasters(spikeTimes, stimOnsets, directions, stimDuration)
 %                                                       scalar
 
 % plotting parameters
-preStim = 500;
+preStim = 500; 
 postStim = 500;
+
+% get orientations
+orientations = unique(directions);
+for i = 1:length(orientations)
+   times{i} = find(directions == orientations(i)); 
+end
+
+figure;
+for i = 1:length(orientations)
+   subplot(4,4,i);
+   hold on;
+   for j = 1:length(times{i})
+    spikes = spikeTimes((spikeTimes > (stimOnsets(times{i}(j))-preStim)) & (spikeTimes < (stimOnsets(times{i}(j))+stimDuration + postStim)));
+    plot(spikes-stimOnsets(times{i}(j)),j*0.1,'k.');
+   end
+      title(num2str(orientations(i)));
+   xlim([-500 2500]);
+   ylim([0 length(times{i})*0.1+0.2]);
+   plot([0 stimDuration stimDuration 0 0], [0 0 1 1 0 ]*(length(times{i})*0.1+0.2));
+   
+end
