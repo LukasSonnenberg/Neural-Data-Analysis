@@ -1,30 +1,43 @@
 function plotOptimalPsth(spikeTimes, stimOnsets, directions, stimDuration)
+% plot a PSTH with optimal bin width
+% spikeTimes: times of all spikes independent of stimulus
+% stimOnsets: times of onsets of all stimuli
+% directions: orientation of each given stimulus
+% stimDuration: lengt of stimulus in ms
 
 preStim = 500;
 postStim = 500;
 bin_width = 20;
 edges = -preStim:bin_width:stimDuration+postStim;
 
-stims = unique(directions);
-cost = cell(1,numel(spikeTimes));
-psth = cell(1,numel(spikeTimes));
-maxidx = zeros(1,length(psth));
-maxval = zeros(1,length(psth));
+% prepare empty cells/arrays and an array of possible stimuli
+stims = unique(directions); %possible stimuli
+cost = cell(1,numel(spikeTimes)); %cost function for each recorded neuron
+psth = cell(1,numel(spikeTimes)); 
+maxidx = zeros(1,length(psth)); %index to find best orientation, at which the neuron responds best
+maxval = zeros(1,length(psth)); %number of spikes for this best orientation
 
+%% get the cost functions for different bin widths and plot them
+figure()
 for i = 1 : numel(spikeTimes)
+    %find orientation of cell at which it responds best
     sTimes = spikeTimes{i};
     spikesum = zeros(1,length(stims));
     for j = 1:length(stims)
         onset = stimOnsets(find(directions == stims(j)));
         for k = 1:length(onset)
-            spikesum(j) = spikesum(j) + sum(sTimes(sTimes>onset(k)-preStim & sTimes<onset(k)+stimDuration+postStim));
+            spikesum(j) = spikesum(j) + sum(sTimes(sTimes>onset(k) & sTimes<onset(k)+stimDuration));
         end
     end
     [maxval(i), maxidx(i)] = max(spikesum);
     dir_onset = find(directions == stims(maxidx(i)));
+    
+    %cost function dependent on bin width
     [cost{i},width,psth{i}] = CostFun(sTimes,stimOnsets(dir_onset),stimDuration,preStim,postStim);
-    %cost{i} = conv(cost{i},ones(1,7)/7,'same');
+    %index of minimum of cost function
     [~,idx] = min(cost{i}(width(width<100)));
+    
+    %plot cost function
     subplot(1,4,i)
     hold on
     plot(width/1000,cost{i},'k.','MarkerFaceColor','k')
@@ -32,6 +45,7 @@ for i = 1 : numel(spikeTimes)
     hold off
 end
 
+%% plot optimal bin widths together with too small and too wide widths
 figure()
 for i = 1 : numel(spikeTimes)
     sTimes = spikeTimes{i};
@@ -67,5 +81,4 @@ for i = 1 : numel(spikeTimes)
     bar(high_centers/1000,high_psth/length(dir_onset)*1000/high_width,1)
     xlim([-preStim,stimDuration + postStim]/1000)
     title(['cell',num2str(i),', \Delta = ',num2str(high_width), ' (too large)'])
-    
 end
