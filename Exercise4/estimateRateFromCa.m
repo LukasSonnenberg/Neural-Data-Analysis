@@ -1,7 +1,7 @@
-function [inferredRate] = estimateRateFromCa(trace)
+function [inferredRate] = estimateRateFromCa(trace,fps)
 trace=double(trace);
 % mean fps from given data
-fps = 11.5;
+% fps = 11.5;
 cutoff = 2;
 % low pass trace (cutoff set somewhat haphazardly)
 % low pass

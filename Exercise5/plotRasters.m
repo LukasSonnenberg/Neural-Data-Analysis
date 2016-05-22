@@ -25,11 +25,14 @@ figure;
 for i = 1:length(orientations)
    subplot(4,4,i);
    hold on;
+   nspikes = 0;
    for j = 1:length(times{i})
     spikes = spikeTimes((spikeTimes > (stimOnsets(times{i}(j))-preStim)) & (spikeTimes < (stimOnsets(times{i}(j))+stimDuration + postStim)));
-    plot(spikes-stimOnsets(times{i}(j)),j*0.1,'k.');
+    plot(spikes-stimOnsets(times{i}(j)),j*0.1*ones(length(spikes),1),'k.');
+    nspikes = nspikes + length(spikeTimes((spikeTimes > stimOnsets(times{i}(j))) & (spikeTimes < (stimOnsets(times{i}(j))+stimDuration ))));
    end
-      title(num2str(orientations(i)));
+   fprintf('Number of spikes for orientation %.2f: %d\n',orientations(i),nspikes);
+   title(num2str(orientations(i)));
    xlim([-500 2500]);
    ylim([0 length(times{i})*0.1+0.2]);
    plot([0 stimDuration stimDuration 0 0], [0 0 1 1 0 ]*(length(times{i})*0.1+0.2));
