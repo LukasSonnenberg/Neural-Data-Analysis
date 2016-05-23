@@ -31,4 +31,6 @@ figure;
 plot(t,0.5*max(spikes)*sin(f*t'+(phase*1000/2/pi)));
 hold on;
 plot(t,spikes);
-text(1000,max(spikes)+0.5*std(spikes),sprintf('Linearity Index: %.2e',abs(ind)));
+%text(1000,max(spikes)+0.5*std(spikes),sprintf('Linearity Index: %.2e',abs(ind)));
+title(sprintf('Linearity Index: %.2e',abs(ind)))
+xlabel('t [ms]')

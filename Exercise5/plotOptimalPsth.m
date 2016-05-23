@@ -1,4 +1,4 @@
-function plotOptimalPsth(spikeTimes, stimOnsets, directions, stimDuration)
+function [KernelWidth,onset_cell] = plotOptimalPsth(spikeTimes, stimOnsets, directions, stimDuration)
 % plot a PSTH with optimal bin width
 % spikeTimes: times of all spikes independent of stimulus
 % stimOnsets: times of onsets of all stimuli
@@ -42,11 +42,17 @@ for i = 1 : numel(spikeTimes)
     hold on
     plot(width/1000,cost{i},'k.','MarkerFaceColor','k')
     plot(width(idx)/1000,cost{i}(idx),'ro','MarkerFaceColor','r')
+    xlabel('kernel width [s]')
+    if i == 1
+        ylabel('cost')
+    end
     hold off
 end
 
 %% plot optimal bin widths together with too small and too wide widths
 figure()
+KernelWidth = zeros(1,4);
+onset_cell = cell(1,4);
 for i = 1 : numel(spikeTimes)
     sTimes = spikeTimes{i};
     dir_onset = find(directions == stims(maxidx(i)));
@@ -54,6 +60,8 @@ for i = 1 : numel(spikeTimes)
     good_width = width(idx);
     low_width = floor(good_width/3);
     high_width = ceil(good_width*3);
+    KernelWidth(i) = good_width;
+    onset_cell{i} = dir_onset;
     
     good_edges = -preStim:good_width:stimDuration+postStim;
     low_edges = -preStim:low_width:stimDuration+postStim;
@@ -79,6 +87,8 @@ for i = 1 : numel(spikeTimes)
     
     ax(i+8) = subplot(3,4,i+8);
     bar(high_centers/1000,high_psth/length(dir_onset)*1000/high_width,1)
+    xlabel('t [s]')
     xlim([-preStim,stimDuration + postStim]/1000)
     title(['cell',num2str(i),', \Delta = ',num2str(high_width), ' (too large)'])
 end
+ saveas(gcf, 'Ex3', 'pdf')

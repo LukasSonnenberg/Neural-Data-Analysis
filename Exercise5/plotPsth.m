@@ -32,6 +32,9 @@ for i = 1:length(stims)
     if max(psth/length(dir_onset)*1000/bin_width)>ymax
         ymax = max(psth/length(dir_onset)*1000/bin_width);
     end
+    if i == 4
+        ylabel('firing rate [spikes/s]')
+    end
 end
 linkaxes(ax);
 xlim([-preStim,stimDuration+postStim]/1000)
