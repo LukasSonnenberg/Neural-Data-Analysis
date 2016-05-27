@@ -12,3 +12,11 @@ function [p, q, qdistr] = testTuning(dirs, counts)
 %       p           p-value
 %       q           magnitude of second Fourier component
 %       qdistr      sampling distribution of |q| under the null hypothesis
+nits = 1000;
+
+for i = 1:nits
+   vcounts = reshape(counts, 1, []);
+   ind = randperm(length(counts(:))); 
+   permcount = reshape(counts(ind),size(counts,1),size(counts,2));
+   
+end
