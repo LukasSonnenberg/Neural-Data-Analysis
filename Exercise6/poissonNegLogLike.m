@@ -21,10 +21,10 @@ function [logLike, gradient] = poissonNegLogLike(p, counts, theta)
 
 %%%% IMPORTANT NOTE: I'm omitting terms constant in the argument
 
-% since we need counts - g(\theta)*exp(g(\theta)) for all the derivatives,
+% since we need counts - exp(g(\theta)) for all the derivatives,
 % pre-calculate it:
 
-expdiff = counts - arrayfun(@(t) g(t,p),theta);
+expdiff = counts - arrayfun(@(t) exp(g(t,p)),theta);
 gradient = zeros(4,1);
 
 gradient(1) = -sum(expdiff); % derivative w.r.t alpha is 1
