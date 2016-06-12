@@ -70,12 +70,31 @@ end
 % visualize true and estimated spatial receptive field (on same scale) and
 % the true and estimated time kernels
 
+
+clim = [min(min([ws, ws_est])), max(max([ws, ws_est]))];
+
 % ADD YOUR CODE HERE ....
+
+% for the actual figure I'm not sure which thing to do...so I'll use the
+% true w
+[U,S,V] = svd(w_true);
+figure('Name','Figure 3');
+subplot(2,2,[1 2]);
+plot(diag(S)); title('Singular Values');
+subplot(2,2,3);
+plot(V(:,1));title('Temporal kernel');
+subplot(2,2,4);
+imagesc(reshape(U(:,1),15,15));title('Spatial kernel');
+
+figure; subplot(2,1,1); imagesc(reshape(ws,15,15),clim); title('Real Spatial Kernel');
+subplot(2,1,2); imagesc(reshape(ws_est,15,15),clim); title('Est Spatial Kernel');
 
 % it is possible that SVD inverts the temporal component
 % if the peak points downward, flip sign as needed:
 wt_est = wt_est * sign(mean(wt_est));
 
+figure; subplot(2,1,1); plot(wt); title('Real Time Kernel');
+subplot(2,1,2); plot(wt_est); title('Est Time Kernel');
 
 %% task 7.4: fit spatio-temporal receptive field to data
 

@@ -10,3 +10,8 @@ function [ws wt] = sepSpaceTime(w)
 %   wt  temporal component of the receptive field (timeSteps x 1)
 %
 %   PHB 2012-06-25
+
+[U,S,V] = svd(w);
+
+ws = U(:,1);
+wt = V(:,1);
