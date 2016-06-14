@@ -46,7 +46,7 @@ for s=1:nSampleSz
         H_mle(s,i) = entropy_mle(sampHist);
         H_mm(s,i) = entropy_mm(sampHist);
         H_cae(s,i) = entropy_cae(sampHist);      
-        H_jk(s,i) = entropy_jk(samp);    
+        H_jk(s,i) = entropy_jk(sampHist);    
 
     end
 end

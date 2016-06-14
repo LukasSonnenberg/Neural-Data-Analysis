@@ -4,4 +4,4 @@ function H = entropy_mle(p)
 %   H   ML estimate of entropy
 
 n = sum(p); % total number of samples
-H = log(n) - nansum(p.*log(p))/n;
+H = log2(n) - nansum(p.*log2(p))/n;

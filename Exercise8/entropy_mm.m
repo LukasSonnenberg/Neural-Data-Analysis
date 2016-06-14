@@ -4,4 +4,4 @@ function H = entropy_mm(p)
 %   H   ML estimate of entropy with miller-maddow correction
 
 Hn = entropy_mle(p);
-H = Hn + (length(p)-1)/(2*sum(p));
+H = Hn + (length(find(p))-1)/(2*sum(p));
