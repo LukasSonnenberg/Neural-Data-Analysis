@@ -1,3 +1,6 @@
+clear all
+close all
+set(0,'DefaultFigureWindowStyle','docked')
 % task 9
 % estimate entropy / evaluate different estimators
 
@@ -23,10 +26,12 @@ for s=1:nSampleSz
         H_cae(s,i) = entropy_cae(sampHist);      
         H_jk(s,i) = entropy_jk(samp);    
         H_est(s,i) = entropy_est(samp);
+        [a,~]=modBUBfunc(sum(sampHist),length(sampHist),11,0);
+        BUB_est(s,i)=sum(a(sampHist+1))/log(2);
+%         BUB_est(s,i)=sum(modBUBfunc(sum(sampHist),length(sampHist),11,1)+1);
     end
 end
-
-plot_estimators(H,H_mle,H_mm,H_cae,H_jk,sampleSz,'Uniform Distribution');
+plot_estimators(H,H_mle,H_mm,H_cae,H_jk,BUB_est,sampleSz,'Uniform Distribution');
 
 %% case 2: zipf distribution
 D = 10;                 % dimensions
@@ -46,12 +51,14 @@ for s=1:nSampleSz
         H_mle(s,i) = entropy_mle(sampHist);
         H_mm(s,i) = entropy_mm(sampHist);
         H_cae(s,i) = entropy_cae(sampHist);      
-        H_jk(s,i) = entropy_jk(sampHist);    
-
+        H_jk(s,i) = entropy_jk(sampHist); 
+        [a,~]=modBUBfunc(sum(sampHist),length(sampHist),11,1);
+        BUB_est(s,i)=sum(a(sampHist+1))/log(2);
     end
 end
+
 fprintf('\n')
-plot_estimators(H,H_mle,H_mm,H_cae,H_jk,sampleSz,'Zipf Distribution');
+plot_estimators(H,H_mle,H_mm,H_cae,H_jk,BUB_est,sampleSz,'Zipf Distribution');
 
 
 
